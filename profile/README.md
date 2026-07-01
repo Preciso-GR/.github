@@ -2,10 +2,13 @@
 
 # Preciso
 
-**Agent-first GraphRAG. Drop files in, let skills extract entities and relationships, get a knowledge graph out.**
+**Precise knowledge graphs from your documents.**
 
-[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](https://github.com/Preciso-GR/preciso-graphrag/blob/main/LICENSE)
-[![MCP](https://img.shields.io/badge/protocol-MCP-6366f1.svg)](https://github.com/Preciso-GR/preciso-graphrag)
+*Named after Bruno Fernandes. Every pass lands exactly where it needs to.*
+
+[![](https://img.shields.io/badge/Codex-Agent-111111?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
+[![](https://img.shields.io/badge/Claude%20Code-Agent-C8102E?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
+[![](https://img.shields.io/badge/Copilot-Agent-7F1D1D?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
 
 </div>
 
