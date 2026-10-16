@@ -4,7 +4,7 @@
 
 **Precise knowledge graphs from your documents.**
 
-*Named after Bruno Fernandes. Every pass lands exactly where it needs to.*
+
 
 [![](https://img.shields.io/badge/Codex-Agent-111111?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
 [![](https://img.shields.io/badge/Claude%20Code-Agent-C8102E?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
