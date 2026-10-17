@@ -1,86 +1,142 @@
 <div align="center">
-
-# Preciso
-
-**Precise knowledge graphs from your documents.**
-
-
-
-[![](https://img.shields.io/badge/Codex-Agent-111111?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
-[![](https://img.shields.io/badge/Claude%20Code-Agent-C8102E?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
-[![](https://img.shields.io/badge/Copilot-Agent-7F1D1D?style=for-the-badge)](https://github.com/Preciso-GR/preciso-graphrag)
-
+  <h1><img src="https://raw.githubusercontent.com/Preciso-GR/.github/main/profile/assets/preciso-logo.png" alt="PRECISO — document knowledge connected for agents" width="640" /></h1>
+  <p><strong>Connect your agent to a persistent graph of document evidence.</strong></p>
+  <p>Local-first GraphRAG · Model Context Protocol · Reviewed document updates</p>
+  <p>
+    <a href="https://github.com/Preciso-GR/preciso-graphrag">Core server</a> ·
+    <a href="https://pypi.org/project/preciso-graphrag/">PyPI</a> ·
+    <a href="https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/simple-setup.md">Setup guide</a>
+  </p>
 </div>
 
----
+## What PRECISO does
 
-## What is Preciso
+PRECISO is a **GraphRAG MCP server for AI agents**. GraphRAG combines graph
+connections with retrieval of relevant text. MCP (Model Context Protocol) lets
+your agent call the server's tools.
 
-Preciso turns unstructured documents into structured, queryable knowledge graphs — without a fixed extraction pipeline baked into the server. Instead, an **agent** (with its own file tools and an LLM) reads a **skill** — a plain-markdown spec describing what entities and relationships matter for a given domain — and writes structured extractions to disk. The MCP server never parses the domain logic itself; it only ingests the resulting extraction JSON, reconciles it against the graph, and serves it back for querying.
+Your agent reads authorized documents and extracts entities, relationships, and
+source passages. PRECISO validates and stores that extraction. The agent can then
+retrieve evidence, follow connections, and maintain the collection across sessions.
 
-This split keeps the core engine small, auditable, and domain-agnostic, while the extraction logic stays swappable, versionable, and community-owned.
-
-**Benchmark:** 95.4% accuracy with zero hallucinations across 23 test cases on a Walmart 10-K extraction benchmark.
-
----
-
-## How it fits together
-
-```
-                 ┌─────────────────────┐
-   documents ──► │   skill (markdown)   │  ← domain-specific extraction spec
-                 │   read by an agent    │     (financial, general, research…)
-                 └──────────┬───────────┘
-                             │ writes extraction JSON
-                             ▼
-                 ┌─────────────────────┐
-                 │   preciso-graphrag    │  ← MCP server: ingest, reconcile,
-                 │   (core engine)        │     store, query the graph
-                 └──────────┬───────────┘
-                             │ MCP tools
-                             ▼
-                 ┌─────────────────────┐
-                 │       Preciso          │  ← web frontend + visualizer
-                 │   (marketing + UI)      │     (d3-force graph, streaming LLM)
-                 └─────────────────────┘
+```text
+Documents → Your agent extracts facts → PRECISO validates and stores
+                                               ↓
+Questions → Your agent retrieves evidence ← Graph + source passages
+                         ↓
+                Answer with source evidence
 ```
 
----
+The agent controls the work. The server does not parse raw PDFs, crawl URLs, watch
+folders, or continue reasoning after the agent disconnects. No separate extraction
+language model or web frontend is required by the core server.
+
+## Who can use it?
+
+PRECISO is intended for people who repeatedly investigate document collections.
+These are possible workflows; they are not validated outcomes for every domain.
+
+| Audience | Example investigation |
+|---|---|
+| Financial and business analysts | How did risks and segment performance change across these filings? |
+| Researchers and research engineers | Which studies support this claim, and where do findings disagree? |
+| Healthcare and life-sciences researchers | How do these studies differ in population, intervention, outcomes, and limitations? |
+| Supply-chain and procurement analysts | Which products depend on this supplier, according to these documents? |
+| Consultants and diligence teams | Which source supports each conclusion in this assessment? |
+| Legal and compliance professionals | Which documents support this obligation or control? |
+| Product and support teams | Which customer problems relate to this release and its known limitations? |
+| Developers and maintainers | Why was this design chosen, and which constraints still apply? |
+
+Start with a small, reviewed corpus and one recurring question. Financial reports
+are closest to the existing evaluations. Healthcare examples concern public
+research synthesis; patient-care workflows are not validated. The core server
+contains no supply-chain application or domain-specific business workflow.
+
+An individual analyst inside a company fits the current local workflow. A shared
+company knowledge service requires additional authorization, isolation, and
+concurrent-access design.
+
+## Try it with your agent
+
+The **0.3.0rc2 release candidate** has guided setup for **macOS with Codex CLI,
+Claude Code CLI, or both**. Install uv, Python 3.11 or later, and your chosen agent
+CLI. Run this command from your project directory:
+
+```sh
+uvx --from preciso-graphrag==0.3.0rc2 preciso-graphrag setup --project .
+```
+
+No repository clone is required. The wizard asks which agent to connect and whether
+to use local or API embeddings. It asks before model downloads and agent
+registration, then verifies the provider and MCP connection.
+
+- **Built-in local default:** IBM Granite Small English R2 through FastEmbed. One model download; no Ollama or embedding API key.
+- **Ollama:** use a supported installed model. Setup can start an installed but stopped local service after confirmation.
+- **API:** use OpenAI or Cohere credentials. Text is sent to the selected provider and usage can incur charges.
+
+Reload your agent and give it access to your documents. Start with:
+
+```text
+Call get_server_status and get_document_workflow.
+Prepare these documents using the returned extraction requirements.
+Show the source IDs, extraction counts, validation results, and unresolved concerns.
+Ingest the reviewed extractions within this task, then answer my question
+with source evidence. State when the evidence is insufficient.
+```
+
+Guided registration does not require a project `.mcp.json`. Selecting both agents
+points them to the same collection. **Only one active runtime may own a collection.**
+Stop one agent's PRECISO server before switching to the other.
+
+See the [setup and recovery guide](https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/simple-setup.md)
+for downloads, credentials, and project storage.
+
+## Keep your knowledge current
+
+Add new documents later. Replace a tracked document with its complete corrected
+extraction, or delete its contribution. Inspect and maintain graph records through
+supported isolation, restoration, removal, rename, merge, and disconnect operations.
+
+Changes use previews and workspace revisions. Replacement, deletion, and graph
+edits rebuild derived data from retained extractions and require a complete
+contribution ledger. Isolation can withhold other claims in the same passage.
+These operations do not provide secure erasure or user authorization.
+
+Read the [document lifecycle guide](https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/document-lifecycle.md)
+for operation-specific limits.
 
 ## Repositories
 
-| Repo | What it is | Visibility |
-|---|---|---|
-| **[preciso-graphrag](https://github.com/Preciso-GR/preciso-graphrag)** | The core MCP server — ingestion, patch-based reconciliation, storage, and query tools. Apache 2.0, with BUSL 1.1 attribution for adapted LightRAG code. | Public |
-| **[skills_for_preciso](https://github.com/Preciso-GR/skills_for_preciso)** | Community-contributed extraction skills — markdown specs defining entity/relationship schemas per domain (financial filings, codebases, research papers, and more). | Public |
-| **[preciso-agent-](https://github.com/Preciso-GR/preciso-agent-)** | A showcase agent built on Preciso, integrating OpenBB and Groq to demonstrate real-world graph-backed financial analysis. | Public |
+| Repository | Role |
+|---|---|
+| [preciso-graphrag](https://github.com/Preciso-GR/preciso-graphrag) | Core MCP server: document lifecycle, graph storage, retrieval, evidence, and optional exports |
+| [skills_for_preciso](https://github.com/Preciso-GR/skills_for_preciso) | Agent extraction instructions for financial, research, and general documents |
+| [preciso-agent-](https://github.com/Preciso-GR/preciso-agent-) | Separate financial reference agent; not required for the core server |
+| [Preciso-web-](https://github.com/Preciso-GR/Preciso-web-) | Separate frontend and visualization project; not required for the core server |
 
+Related applications have their own dependencies and setup instructions. Their
+availability does not mean they share the core server's verification status.
 
----
+## Current scope
 
-## Design principles
+- Individual local use, with one runtime per collection. Shared multi-user authorization is not implemented.
+- Guided setup is verified on macOS. Windows and Linux automated setup remain unverified.
+- A Linux Docker image is available. Native Windows support needs additional work.
+- The default embedding model targets English. Retrieval quality depends on your corpus and extraction quality.
+- Retrieved passages are evidence candidates, not proof that an answer is correct. Review the sources.
+- Historical financial evaluations do not establish accuracy across domains or for the current default model.
 
-- **The graph creation process is the tool.** Extraction isn't a hidden pipeline — it's a markdown skill the agent can read, reason about, and follow, the same way a human analyst would follow a style guide.
-- **Provider-agnostic.** Bring your own LLM, embedding model, and coding agent. Preciso doesn't lock you into a single stack.
-- **File-based handoff.** Agents write extractions to disk; the server ingests and reconciles. This keeps agent reasoning and server logic decoupled and independently testable.
-- **Skills are content, not code.** New domains ship as `.md` files, not server changes — anyone can contribute a skill without touching the core engine.
+See [evaluation methodology](https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/eval-guide.md),
+[embedding measurements](https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/embedding-model-selection.md),
+and [production readiness](https://github.com/Preciso-GR/preciso-graphrag/blob/main/docs/production-readiness.md)
+for evidence and remaining release gates.
 
----
+## Contribute
 
-## Getting started
+Report core defects and propose focused improvements in
+[preciso-graphrag](https://github.com/Preciso-GR/preciso-graphrag).
+Include a reproducible example and remove private document content from public
+reports. Read the [contribution guide](https://github.com/Preciso-GR/preciso-graphrag/blob/main/CONTRIBUTING.md).
 
-```bash
-git clone https://github.com/Preciso-GR/preciso-graphrag.git
-cd preciso-graphrag
-# see the repo README for MCP server setup and skill configuration
-```
-
-Point your `.mcp.json` at the server, drop a skill from `skills_for_preciso` (or write your own) into `skills/`, and start extracting.
-
----
-
-## Contributing
-
-Skill contributions are the easiest way to extend Preciso to a new domain — see [skills_for_preciso](https://github.com/Preciso-GR/skills_for_preciso) for the format and examples (financial-graph-extraction, general-graph-extraction, research-paper-graph-extraction). Core engine contributions and issues go to [preciso-graphrag](https://github.com/Preciso-GR/preciso-graphrag).
-
-</div>
+To extend extraction to another domain, contribute instructions and reviewed
+examples to [skills_for_preciso](https://github.com/Preciso-GR/skills_for_preciso).
